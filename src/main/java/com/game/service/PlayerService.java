@@ -38,7 +38,7 @@ public class PlayerService {
 	@Transactional
 	public Player updatePlayer(long id, Player player) {
 		Optional<Player> newPlayer = playerRepository.findById(id);
-		Player updatePlayer = newPlayer.get();		//сюда сохраняем старого игрока
+		Player updatePlayer = newPlayer.get();						//сюда сохраняем старого игрока
 		if(player.getName() != null){
 			updatePlayer.setName(player.getName());
 		}
@@ -54,10 +54,9 @@ public class PlayerService {
 		if(player.getBirthday() != null){
 			updatePlayer.setBirthday(player.getBirthday());
 		}
-		if(player.getBanned() != null)
+		if(player.getBanned() != null) {
 			updatePlayer.setBanned(player.getBanned());
-		else updatePlayer.setBanned(false);
-
+		}
 		if(player.getExperience() != null){
 			updatePlayer.setExperience(player.getExperience());
 		}
@@ -76,12 +75,12 @@ public class PlayerService {
 
 	//5. найти по ID
 	@Transactional
-	public Player findById(long id) {
+	public Player findById(Long id) {
 		Optional<Player> player = playerRepository.findById(id);
 		return player.get();
 	}
 
-	public boolean existsById(long id) {
+	public boolean existsById(Long id) {
 		if (!playerRepository.existsById(id)){
 			return false;
 		}
@@ -104,38 +103,48 @@ public class PlayerService {
 
 	//проверка полей перед созданием игрока
 	public boolean checkPlayerBeforeSave(Player player){
-		Calendar before = new GregorianCalendar(2000, Calendar.JANUARY, 1);
-		Calendar after = new GregorianCalendar(3000, Calendar.DECEMBER, 31);
-		boolean b = player.getBirthday().before(before.getTime());		//до 2000
-		boolean a = player.getBirthday().after(after.getTime());		//после 3000
-
+		Long begin = new GregorianCalendar(2000,1,1).getTimeInMillis();
+		Long end = new GregorianCalendar(3000,1,1).getTimeInMillis();
+		Long birtDay = player.getBirthday().getTime();
 		if(player.getName()== null || player.getName().isEmpty() || player.getName().length() >12
 				|| player.getTitle().length() >30 || player.getTitle() == null ||  player.getTitle().isEmpty()
 				|| player.getExperience() <= -1 || player.getExperience() > 10000000
 				|| player.getRace() == null || player.getProfession() == null || player.getBirthday() == null
-				|| player.getBirthday().getTime() <= -1 || b || a)
+				|| birtDay <= -1 || (birtDay < begin || birtDay > end))
 		{
 			return false;
 		}
 		return true;
 	}
 
-	//проверка полей перед апдейтом игрока
-	public boolean checkPlayerBeforeUpdate(Player player){
-		Calendar before = new GregorianCalendar(2000, Calendar.JANUARY, 1);
-		Calendar after = new GregorianCalendar(3000, Calendar.DECEMBER, 31);
-		boolean a, b;
-		if (player.getBirthday() != null || player.getBirthday().getTime() <= -1) {
-			b = player.getBirthday().before(before.getTime());        //до 2000
-			a = player.getBirthday().after(after.getTime());        //после 3000
-
-			if(player.getName().length() >12 || player.getTitle().length() >30
-					|| player.getExperience() <= -1 || player.getExperience() > 10000000
-					 || b || a)
-			{
-				return false;
-			}
+	public boolean checkBirthday(Date date){
+		if(date == null) {
+			return true;
 		}
+		Long birtDay = date.getTime();
+		Long begin = new GregorianCalendar(2000,1,1).getTimeInMillis();
+		Long end = new GregorianCalendar(3000,1,1).getTimeInMillis();
+
+		if(birtDay < 0 || (birtDay < begin || birtDay > end)) {
+			return false;
+		}
+		return true;
+	}
+
+	public boolean checkExperience(Integer exp) {
+		if(exp == null) {
+			return  true;
+		}
+		if(exp < 0 || exp > 10_000_000 ) {
+			return false;
+		}
+		return true;
+	}
+
+	public boolean checkTitle(String title){
+		if(title.length() >30)	{
+		return false;
+	}
 		return true;
 	}
 
@@ -150,15 +159,14 @@ public class PlayerService {
 	}
 
 	public boolean isValidId (Long playerId){
-		return playerId != null && playerId != 0 && playerId >= 0;
+		return playerId != 0 && playerId >0;
 	}
 
-//	public  boolean isEmptyBody (Player player){
-//		return player.getName() == null && player.getName().isEmpty()
-//				&& player.getTitle() == null && player.getTitle().isEmpty()
-//				&& player.getExperience() == null && player.getRace() == null
-//				&& player.getProfession() == null && player.getBirthday() == null
-//				&& player.getLevel() == null && player.getId() == null && player.getUntilNextLevel() == null
-//				&& player.getBanned() == null;
-//	}
+	public  boolean isEmptyBody (Player player){
+		return player.getName() == null
+				&& player.getTitle() == null
+				&& player.getRace() == null
+				&& player.getProfession() == null && player.getBirthday() == null
+				&& player.getBanned() == null;
+	}
 }

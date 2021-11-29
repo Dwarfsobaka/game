@@ -143,12 +143,14 @@ public class UpdatePlayerTest extends AbstractTest {
         boolean newBanned = false;
         int newExperience = 2500;
 
+         //устанавливаем новые данные
         PlayerInfoTest expected = new PlayerInfoTest(playerInfoTest.id, newName, playerInfoTest.title, playerInfoTest.race, playerInfoTest.profession,
-                playerInfoTest.birthday, newBanned, newExperience, 6, 300);
+                playerInfoTest.birthday, false, newExperience, 6, 300);
 
+        //что ожидается
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/rest/players/" + playerInfoTest.id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(String.format(TestsHelper.JSON_SKELETON, newName, newBanned, newExperience)))
+                .content(String.format(TestsHelper.JSON_SKELETON, newName, false, newExperience)))
                 .andExpect(status().isOk());
 
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();

@@ -16,27 +16,20 @@ public class Player {
 private Long id;
 
 @Column(name = "name")
-//@NotNull
-//@NotBlank
 private String name;
 
 @Column(name = "title")
-//@NotNull
-//@NotBlank
 private String title;
 
 @Column(name = "race")
-//@NotNull
 @Enumerated(EnumType.STRING)
 private Race race;
 
 @Column(name = "profession")
-//@NotNull
 @Enumerated(EnumType.STRING)
 private Profession profession;
 
 @Column(name = "experience")
-//@NotNull
 private Integer experience;
 
 @Column(name = "level")
@@ -71,10 +64,6 @@ public Player(Long id, String name, String title, Race race, Profession professi
 public Long getId() {
 	return id;
 }
-
-//public void setId(Long id) {
-//	this.id = id;
-//}
 
 public String getName() {
 	return name;
