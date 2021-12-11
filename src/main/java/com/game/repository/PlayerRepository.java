@@ -3,6 +3,7 @@ package com.game.repository;
 import com.game.entity.Player;
 import com.game.entity.Profession;
 import com.game.entity.Race;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -29,7 +30,7 @@ public interface PlayerRepository extends PagingAndSortingRepository<Player, Lon
 			"(:maxExperience is null or pl.experience <= :maxExperience) and " +
 			"(:minLevel is null or pl.level >= :minLevel) and " +
 			"(:maxLevel is null or pl.level <= :maxLevel)")
-	List<Player> findAllByParams (
+	List<Player> findAllByParams(
 			@Param("name") String name,
 			@Param("title") String title,
 			@Param("race") Race race,
@@ -40,7 +41,8 @@ public interface PlayerRepository extends PagingAndSortingRepository<Player, Lon
 			@Param("minExperience") Integer minExperience,
 			@Param("maxExperience") Integer maxExperience,
 			@Param("minLevel") Integer minLevel,
-			@Param("maxLevel") Integer maxLevel);
+			@Param("maxLevel") Integer maxLevel,
+			Pageable pageable);
 
 }
 

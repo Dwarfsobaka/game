@@ -1,10 +1,7 @@
 package com.game.entity;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Date;
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table (name = "player")

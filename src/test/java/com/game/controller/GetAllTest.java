@@ -172,4 +172,41 @@ public class GetAllTest extends AbstractTest {
 
         assertEquals("Возвращается не правильный результат при запросе GET /rest/players с параметрами after, before, minExperience и maxExperience.", expected, actual);
     }
+
+   //мои
+    @Test
+    public void getAllWithFiltersAfterBefore() throws Exception {
+        //after 00:00 01.01.2005
+        //before 00:00 01.01.2009
+        ResultActions resultActions = mockMvc.perform(get("/rest/players?after=1104530400000&before=1230760800000&pageNumber=1"))
+                .andExpect(status().isOk());
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+
+        List<PlayerInfoTest> actual = mapper.readValue(contentAsString, typeReference);
+        List<PlayerInfoTest> expected = testsHelper.getPlayerInfosByPage(1, 3,
+                testsHelper.getPlayerInfosByAfter(1104530400000L,
+                        testsHelper.getPlayerInfosByBefore(1230760800000L,
+                                                testsHelper.getAllPlayers())));
+
+        assertEquals("Возвращается не правильный результат при запросе GET /rest/players с параметрами after, before, minExperience и maxExperience.", expected, actual);
+    }
+
+    @Test
+    public void getAllWithFiltersMinExperienceMaxExperience() throws Exception {
+        ResultActions resultActions = mockMvc.perform(get("/rest/players?minExperience=30000&maxExperience=100000&pageNumber=1"))
+                .andExpect(status().isOk());
+
+        MvcResult result = resultActions.andReturn();
+        String contentAsString = result.getResponse().getContentAsString();
+
+        List<PlayerInfoTest> actual = mapper.readValue(contentAsString, typeReference);
+        List<PlayerInfoTest> expected = testsHelper.getPlayerInfosByPage(1, 3,
+                                testsHelper.getPlayerInfosByMinExperience(30000,
+                                        testsHelper.getPlayerInfosByMaxExperience(100000,
+                                                testsHelper.getAllPlayers())));
+
+        assertEquals("Возвращается не правильный результат при запросе GET /rest/players с параметрами after, before, minExperience и maxExperience.", expected, actual);
+    }
 }

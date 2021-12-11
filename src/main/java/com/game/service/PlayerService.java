@@ -1,9 +1,12 @@
 package com.game.service;
 
 import java.util.*;
+
 import com.game.entity.Profession;
 import com.game.entity.Race;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.game.entity.Player;
 import com.game.repository.PlayerRepository;
@@ -14,17 +17,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PlayerService {
 
-	private final PlayerRepository playerRepository;
 	@Autowired
-    public PlayerService(PlayerRepository playerRepository) {
-        this.playerRepository = playerRepository;
-    }
+	private final PlayerRepository playerRepository;
+
+//	@Autowired
+//	PlatformTransactionManager platformTransactionManager;
+//
+//	@Autowired
+//	EntityManagerFactory entityManagerFactory;
+
+	public PlayerService(PlayerRepository playerRepository) {
+		this.playerRepository = playerRepository;
+	}
 
 	//1. найти всех
 	@Transactional
 	public List<Player> findAll() {
 		return (List<Player>) playerRepository.findAll();
-
 	}
 
 	//2. создать игрока
@@ -89,15 +98,27 @@ public class PlayerService {
 
 	//6. найти по параметрам(фильтрам)
 	@Transactional
-	public List<Player> findAllByParams(String name, String title, Race race, Profession profession, Date after, Date before, Boolean banned, Integer minExperience, Integer maxExperience, Integer minLevel, Integer maxLevel) {
-		return playerRepository.findAllByParams( name, title,race, profession, after, before,banned, minExperience, maxExperience, minLevel, maxLevel);
+	public List<Player> findAllByParams(String name, String title, Race race, Profession profession, Date after, Date before,
+						Boolean banned, Integer minExperience, Integer maxExperience, Integer minLevel, Integer maxLevel,
+						Integer pageNumber, Integer pageSize) {
 
+		Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+		List<Player> all = playerRepository.findAllByParams(name, title, race, profession, after, before,
+							banned, minExperience, maxExperience, minLevel,
+							maxLevel, pageable);
+		return all;
 	}
 
 	//7. посчитать кол-во найденных по параметрам
 	@Transactional
 	public int findAllByParamsAndCount(String name, String title, Race race, Profession profession, Date after, Date before, Boolean banned, Integer minExperience, Integer maxExperience, Integer minLevel, Integer maxLevel) {
-		return playerRepository.findAllByParams( name, title,race, profession, after, before,banned, minExperience, maxExperience, minLevel, maxLevel).size();
+		Pageable pageable = PageRequest.of(0,3);
+		List<Player> all = playerRepository.findAllByParams(name, title, race, profession, after, before,
+				banned, minExperience, maxExperience, minLevel,
+				maxLevel, pageable);
+
+		return all.size();
 	}
 
 
@@ -143,8 +164,8 @@ public class PlayerService {
 
 	public boolean checkTitle(String title){
 		if(title.length() >30)	{
-		return false;
-	}
+			return false;
+		}
 		return true;
 	}
 
