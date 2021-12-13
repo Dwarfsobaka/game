@@ -6,7 +6,6 @@ import com.game.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -45,15 +44,20 @@ public class PlayerController{
 
     //3. удалить игрока
     @DeleteMapping("/{id}")
-    public ResponseEntity<Player> deletePlayer(@PathVariable("id") Long playerId){
-        if (!playerService.isValidId(playerId)) {
+    public ResponseEntity<Player> deletePlayer(@PathVariable("id")  String playerId){
+        Long id = 0L;
+        if (!playerService.isValidId(playerId)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        else if(!playerService.existsById(playerId)) {
+        else {
+            id = Long.parseLong(playerId);
+        }
+
+        if(!playerService.existsById(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else {
-            playerService.deletePlayer(playerId);
+            playerService.deletePlayer(id);
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
@@ -62,11 +66,11 @@ public class PlayerController{
     @PostMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Player> updatePlayer(@PathVariable("id") String playerId,@RequestBody Player player ) {
-        Long id = Long.parseLong(playerId);
+        Long id = 0L;
         if (playerService.isEmptyBody(player)){
             return new ResponseEntity<>(playerService.findById(id),HttpStatus.OK);
         }
-        else if (!playerService.isValidId(id)
+        else if (!playerService.isValidId(playerId)
                 || !playerService.checkBirthday(player.getBirthday())
                 || !playerService.checkExperience(player.getExperience())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -75,6 +79,7 @@ public class PlayerController{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else {
+            id = Long.parseLong(playerId);
             Player newPlayer = playerService.updatePlayer(id, player);
             return new ResponseEntity<>(newPlayer, HttpStatus.OK);
         }
@@ -82,15 +87,20 @@ public class PlayerController{
 
     //5.найти по ID
     @GetMapping("/{id}")
-    public ResponseEntity<Player> getPlayer(@PathVariable("id") Long playerId) {
+    public ResponseEntity<Player> getPlayer(@PathVariable("id") String playerId) {
+        Long id = 0L;
         if (!playerService.isValidId(playerId)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        else if(!playerService.existsById(playerId)) {
+        else {
+            id = Long.parseLong(playerId);
+        }
+
+       if(!playerService.existsById(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else {
-            Player player = playerService.findById(playerId);
+            Player player = playerService.findById(id);
             return new ResponseEntity<>(player, HttpStatus.OK);
         }
     }
@@ -130,6 +140,45 @@ public class PlayerController{
         return new ResponseEntity<>(playerList, HttpStatus.OK);
     }
 
-    //6. посчитать нденных по параметрам
+    //6. посчитать найденных по параметрам
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getAllCount(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "race", required = false) Race race,
+            @RequestParam(value = "profession", required = false) Profession profession,
+            @RequestParam(value = "after", required = false) Long after,
+            @RequestParam(value = "before", required = false) Long before,
+            @RequestParam(value = "banned", required = false) Boolean banned,
+            @RequestParam(value = "minExperience", required = false) Integer minExperience,
+            @RequestParam(value = "maxExperience", required = false) Integer maxExperience,
+            @RequestParam(value = "minLevel", required = false) Integer minLevel,
+            @RequestParam(value = "maxLevel", required = false) Integer maxLevel) {
 
-}
+        int countByParams = 0;
+        if (after!= null && before != null) {
+            countByParams =  playerService.findAllByParamsAndCount(name, title, race, profession,
+                    new Date(after), new Date(before), banned, minExperience, maxExperience,
+                    minLevel, maxLevel);
+        }
+        else if (after == null && before!= null) {
+            countByParams =  playerService.findAllByParamsAndCount(name, title, race, profession,
+                    null,  new Date(before), banned, minExperience, maxExperience,
+                    minLevel, maxLevel);
+        }
+
+        else if (before == null && after != null) {
+            countByParams =  playerService.findAllByParamsAndCount(name, title, race, profession,
+                    new Date(after),  null, banned, minExperience, maxExperience,
+                    minLevel, maxLevel);
+        }
+        else {
+            countByParams = playerService.findAllByParamsAndCount(name, title, race, profession, null, null,
+                    banned, minExperience, maxExperience,
+                    minLevel, maxLevel);
+        }
+        return new ResponseEntity<>(countByParams, HttpStatus.OK);
+    }
+    }
+
+

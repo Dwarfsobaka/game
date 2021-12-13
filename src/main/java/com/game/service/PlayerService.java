@@ -112,11 +112,13 @@ public class PlayerService {
 
 	//7. посчитать кол-во найденных по параметрам
 	@Transactional
-	public int findAllByParamsAndCount(String name, String title, Race race, Profession profession, Date after, Date before, Boolean banned, Integer minExperience, Integer maxExperience, Integer minLevel, Integer maxLevel) {
-		Pageable pageable = PageRequest.of(0,3);
-		List<Player> all = playerRepository.findAllByParams(name, title, race, profession, after, before,
+	public int findAllByParamsAndCount(String name, String title, Race race, Profession profession,
+									   Date after, Date before, Boolean banned, Integer minExperience,
+									   Integer maxExperience, Integer minLevel, Integer maxLevel) {
+
+		List<Player> all = playerRepository.findAllByParamsAndCount(name, title, race, profession, after, before,
 				banned, minExperience, maxExperience, minLevel,
-				maxLevel, pageable);
+				maxLevel);
 
 		return all.size();
 	}
@@ -179,9 +181,18 @@ public class PlayerService {
 		return 50* (countLevel(player)+1)*(countLevel(player)+2)-player.getExperience();
 	}
 
-	public boolean isValidId (Long playerId){
-		return playerId != 0 && playerId >0;
+
+
+	public boolean isValidId(String playerId){
+		Long id = 0L;
+		try {
+			id = Long.parseLong(playerId);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return id != 0 && id >0;
 	}
+
 
 	public  boolean isEmptyBody (Player player){
 		return player.getName() == null

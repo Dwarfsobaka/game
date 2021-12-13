@@ -17,7 +17,7 @@ import java.util.List;
 @Transactional
 public interface PlayerRepository extends PagingAndSortingRepository<Player, Long> {
 
-	//список по фильтрам
+	//поиск по фильтрам
 	@Query("select pl from Player pl where " +
 			"(:name is null or pl.name like concat('%',:name,'%')) and " +
 			"(:title is null or pl.title like concat('%',:title,'%')) and " +
@@ -43,6 +43,31 @@ public interface PlayerRepository extends PagingAndSortingRepository<Player, Lon
 			@Param("minLevel") Integer minLevel,
 			@Param("maxLevel") Integer maxLevel,
 			Pageable pageable);
+
+	@Query("select pl from Player pl where " +
+			"(:name is null or pl.name like concat('%',:name,'%')) and " +
+			"(:title is null or pl.title like concat('%',:title,'%')) and " +
+			"(:race is null or pl.race = :race) and " +
+			"(:profession is null or pl.profession = :profession) and " +
+			"(:after is null or pl.birthday >= :after) and " +
+			"(:before is null or pl.birthday <= :before) and " +
+			"(:banned is null or pl.banned = :banned) and " +
+			"(:minExperience is null or pl.experience >= :minExperience) and " +
+			"(:maxExperience is null or pl.experience <= :maxExperience) and " +
+			"(:minLevel is null or pl.level >= :minLevel) and " +
+			"(:maxLevel is null or pl.level <= :maxLevel)")
+	List<Player> findAllByParamsAndCount(
+			@Param("name") String name,
+			@Param("title") String title,
+			@Param("race") Race race,
+			@Param("profession") Profession profession,
+			@Param("after") Date after,
+			@Param("before") Date Before,
+			@Param("banned") Boolean banned,
+			@Param("minExperience") Integer minExperience,
+			@Param("maxExperience") Integer maxExperience,
+			@Param("minLevel") Integer minLevel,
+			@Param("maxLevel") Integer maxLevel);
 
 }
 
