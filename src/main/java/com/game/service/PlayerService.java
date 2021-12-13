@@ -20,12 +20,6 @@ public class PlayerService {
 	@Autowired
 	private final PlayerRepository playerRepository;
 
-//	@Autowired
-//	PlatformTransactionManager platformTransactionManager;
-//
-//	@Autowired
-//	EntityManagerFactory entityManagerFactory;
-
 	public PlayerService(PlayerRepository playerRepository) {
 		this.playerRepository = playerRepository;
 	}
@@ -98,15 +92,14 @@ public class PlayerService {
 
 	//6. найти по параметрам(фильтрам)
 	@Transactional
-	public List<Player> findAllByParams(String name, String title, Race race, Profession profession, Date after, Date before,
-						Boolean banned, Integer minExperience, Integer maxExperience, Integer minLevel, Integer maxLevel,
-						Integer pageNumber, Integer pageSize) {
-
+	public List<Player> findAllByParams(String name, String title, Race race, Profession profession,
+										Date after, Date before,Boolean banned, Integer minExperience,
+										Integer maxExperience, Integer minLevel, Integer maxLevel,
+										Integer pageNumber, Integer pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
-
 		List<Player> all = playerRepository.findAllByParams(name, title, race, profession, after, before,
-							banned, minExperience, maxExperience, minLevel,
-							maxLevel, pageable);
+										banned, minExperience, maxExperience, minLevel,
+										maxLevel, pageable);
 		return all;
 	}
 
@@ -117,12 +110,9 @@ public class PlayerService {
 									   Integer maxExperience, Integer minLevel, Integer maxLevel) {
 
 		List<Player> all = playerRepository.findAllByParamsAndCount(name, title, race, profession, after, before,
-				banned, minExperience, maxExperience, minLevel,
-				maxLevel);
-
+										banned, minExperience, maxExperience, minLevel,maxLevel);
 		return all.size();
 	}
-
 
 	//проверка полей перед созданием игрока
 	public boolean checkPlayerBeforeSave(Player player){
@@ -181,18 +171,15 @@ public class PlayerService {
 		return 50* (countLevel(player)+1)*(countLevel(player)+2)-player.getExperience();
 	}
 
-
-
 	public boolean isValidId(String playerId){
-		Long id = 0L;
+		Long id;
 		try {
 			id = Long.parseLong(playerId);
 		} catch (NumberFormatException e) {
 			return false;
 		}
-		return id != 0 && id >0;
+		return id > 0;
 	}
-
 
 	public  boolean isEmptyBody (Player player){
 		return player.getName() == null

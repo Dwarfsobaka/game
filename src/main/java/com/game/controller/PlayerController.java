@@ -21,14 +21,14 @@ public class PlayerController{
         this.playerService = playerService;
     }
 
-    //2.создать игрока
+    //1.создать игрока
     @PostMapping("/")
     @ResponseBody
     public ResponseEntity<Player> createPlayer(@RequestBody Player player){
         if (playerService.isEmptyBody(player)){
             return new ResponseEntity<>(player, HttpStatus.BAD_REQUEST);
         }
-        else if (!playerService.checkPlayerBeforeSave(player)) {                                       //если игрок полностью null
+        else if (!playerService.checkPlayerBeforeSave(player)) {
             return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
         }
         else {
@@ -42,17 +42,16 @@ public class PlayerController{
         }
     }
 
-    //3. удалить игрока
+    //2. удалить игрока
     @DeleteMapping("/{id}")
     public ResponseEntity<Player> deletePlayer(@PathVariable("id")  String playerId){
-        Long id = 0L;
-        if (!playerService.isValidId(playerId)){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        else {
+        Long id;
+        if (playerService.isValidId(playerId)){
             id = Long.parseLong(playerId);
         }
-
+        else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         if(!playerService.existsById(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -62,16 +61,21 @@ public class PlayerController{
         }
     }
 
-    //4. редактровать характеристики существующего
+    //3. редактровать характеристики существующего
     @PostMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Player> updatePlayer(@PathVariable("id") String playerId,@RequestBody Player player ) {
+    public ResponseEntity<Player> updatePlayer(@PathVariable("id") String playerId, @RequestBody Player player ) {
         Long id = 0L;
+        if (playerService.isValidId(playerId)){
+            id = Long.parseLong(playerId);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         if (playerService.isEmptyBody(player)){
             return new ResponseEntity<>(playerService.findById(id),HttpStatus.OK);
         }
-        else if (!playerService.isValidId(playerId)
-                || !playerService.checkBirthday(player.getBirthday())
+        else if (!playerService.checkBirthday(player.getBirthday())
                 || !playerService.checkExperience(player.getExperience())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -79,23 +83,21 @@ public class PlayerController{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else {
-            id = Long.parseLong(playerId);
             Player newPlayer = playerService.updatePlayer(id, player);
             return new ResponseEntity<>(newPlayer, HttpStatus.OK);
         }
     }
 
-    //5.найти по ID
+    //4.найти по ID
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayer(@PathVariable("id") String playerId) {
-        Long id = 0L;
-        if (!playerService.isValidId(playerId)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        else {
+        Long id;
+        if (playerService.isValidId(playerId)){
             id = Long.parseLong(playerId);
         }
-
+        else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
        if(!playerService.existsById(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -105,7 +107,7 @@ public class PlayerController{
         }
     }
 
-    //6.найти по параметрам
+    //5.найти по параметрам
     @GetMapping("")
     public ResponseEntity<List<Player>> getAll(
             @RequestParam(value = "name", required = false) String name,
@@ -129,7 +131,6 @@ public class PlayerController{
           playerList = playerService.findAllByParams(name, title, race, profession,
                     new Date(after), new Date(before), banned, minExperience, maxExperience,
                     minLevel, maxLevel, pageNumber, pageSize);
-
         }
         else {
             playerList = playerService.findAllByParams(name, title, race, profession, null, null,
